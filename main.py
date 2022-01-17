@@ -23,7 +23,9 @@ def main():
     FACTOR = st.sidebar.number_input("Multiplication Factor",
                                      value=2.0, min_value=2.0,
                                      step=0.1, max_value=10.0)
-    st.sidebar.write(f"You may need {simulate_budget(base_bet=BASE_BET, factor=FACTOR)} BNB")
+    st.sidebar.warning(f"You may need "
+                       f"**{simulate_budget(base_bet=BASE_BET, factor=FACTOR)} BNB** "
+                       f"in your wallet.")
 
     # BSC NODE
     w3 = Web3(Web3.HTTPProvider(web3_provider))
@@ -92,7 +94,7 @@ def main():
                 st.write(f'Attempting to claim {len(epochs)} rounds...%\n {epochs}')
                 claim(epochs)
             else:
-                st.write(f'Sorry, no rounds to claim')
+                st.warning(f'Sorry, no rounds to claim')
 
     def makeBet(epoch):
         """
@@ -109,9 +111,11 @@ def main():
             rand = 0
 
         if rand:
+            st.info("Placing a Bullish bet")
             st.write(f'Going Bull #{epoch} | {value} BNB')
             betBull(value, epoch)
         else:
+            st.info("Placing a Bearish bet")
             st.write(f'Going Bear #{epoch} | {value} BNB')
             betBear(value, epoch)
 
@@ -125,21 +129,21 @@ def main():
             st.write(f'New round: #{current}')
             return [bet_time, current]
         except Exception as e:
-            st.write(f'New round fail - {e}')
+            st.error(f'New round fail - {e}')
 
-    if st.button("Run"):
+    if st.button("Place a BET"):
         new_round = newRound()
-        n = True
-        while n:
-            try:
-                now = dt.datetime.now()
-                if now >= new_round[0]:
-                    makeBet(new_round[1])
-                    time.sleep(130)
-                    new_round = newRound()
-            except Exception as e:
-                st.write(f'(error) Restarting...% {e}')
+        # n = True
+        # while n:
+        try:
+            now = dt.datetime.now()
+            if now >= new_round[0]:
+                makeBet(new_round[1])
+                time.sleep(130)
                 new_round = newRound()
+        except Exception as e:
+            st.write(f'(error) Restarting...% {e}')
+            new_round = newRound()
 
 
 if __name__ == '__main__':
