@@ -9,7 +9,7 @@ from utils.budget import simulate_budget
 from utils.config import config
 from utils.contract import PREDICTION_ABI, PREDICTION_CONTRACT
 
-STRATEGIES = ["Random", "Bullish", "Bearish", "Auto"]
+STRATEGIES = ["Random", "Bullish", "Bearish"]
 
 
 def main():
