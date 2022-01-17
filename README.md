@@ -4,7 +4,11 @@ An open-source toolbox for daily cryptography needs which is developed in Python
 ___
 ## Run
 In order to run this app, you need to install the dependencies first based on
-the `environment.yml` or `requirements.txt` files. Once the dependencies are installed, run the dashboard using
+the `environment.yml` or `requirements.txt` files.
+
+    conda env create -f environment.yml
+
+Once the dependencies are installed, run the dashboard using
 `streamlit`.
 
     streamlit run ./main.py
