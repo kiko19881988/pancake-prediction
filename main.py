@@ -19,7 +19,8 @@ def main():
     PRIVATE_KEY = st.sidebar.text_area("Private Key", value="")
     STRATEGY = st.sidebar.selectbox("Strategy", options=STRATEGIES)
     BASE_BET = st.sidebar.number_input("Base Bet (BNB)",
-                                       value=0.002, min_value=0.001, step=0.001)
+                                       value=0.002, min_value=0.001, step=0.001,
+                                       format="%.4f")
     FACTOR = st.sidebar.number_input("Multiplication Factor",
                                      value=2.0, min_value=2.0,
                                      step=0.1, max_value=10.0)
