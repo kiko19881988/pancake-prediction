@@ -19,7 +19,7 @@ def main():
     PRIVATE_KEY = st.sidebar.text_area("Private Key", value="")
     STRATEGY = st.sidebar.selectbox("Strategy", options=STRATEGIES)
     BASE_BET = st.sidebar.number_input("Base Bet (BNB)",
-                                       value=0.01, min_value=0.001, step=0.001)
+                                       value=0.002, min_value=0.001, step=0.001)
     FACTOR = st.sidebar.number_input("Multiplication Factor",
                                      value=2.0, min_value=2.0,
                                      step=0.1, max_value=10.0)
@@ -135,6 +135,7 @@ def main():
         new_round = newRound()
         # n = True
         # while n:
+        # TODO: Here we have to loop through them.
         try:
             now = dt.datetime.now()
             if now >= new_round[0]:
