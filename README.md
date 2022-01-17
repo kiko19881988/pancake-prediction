@@ -8,14 +8,19 @@ the `environment.yml` or `requirements.txt` files.
 
     conda env create -f environment.yml
 
-Once the dependencies are installed, run the dashboard using
-`streamlit`.
+Once the environment has been created, activate it:
+
+    conda activate pancake
+
+Now you can run the dashboard using `streamlit`.
 
     streamlit run ./main.py
 
 ### Live demo
 You can check its live demo here:
 [https://share.streamlit.io/kavehbc/pancake-prediction/main.py](https://share.streamlit.io/kavehbc/pancake-prediction/main.py)
+
+> You may require authorization to access the live dashboard.
 
 ___
 ## Github Repo
