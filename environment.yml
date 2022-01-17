@@ -6,7 +6,9 @@ dependencies:
   - python=3.8
   - pandas
   - numpy
+  - web3
   - pip
   - pip:
       - retrying
       - streamlit
+      - toml

@@ -1,0 +1,15 @@
+[tx]
+# TX SETTING
+gas = 400000
+gas_price = 5000000000
+
+[bet]
+# SECONDS LEFT BET AT
+seconds_left = 8
+
+[bnb]
+# IF TRUE, WHEN BNB BALANCE IS BELLOW BNB_LIMIT
+# CLAIM ROUNDS INSIDE RANGE (CURRENT ROUND - RANGE)
+range = 100
+limit = 0.1
+claim = true

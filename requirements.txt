@@ -1,4 +1,6 @@
 pandas
 numpy
+web3
 streamlit
+toml
 retrying
