@@ -43,7 +43,8 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
     alpha = model.params['x1']
     # beta = model.params['const']
 
-    if alpha > 0:
+    # because the database is sorted reversely, negative alpha is bulish
+    if alpha < 0:
         # bullish
         trx_hash = psp.betBull(value)
         position = "bull"
