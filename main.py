@@ -1,9 +1,7 @@
-import math
 import streamlit as st
 import time
 import datetime as dt
 import asyncio
-import random
 
 import strategy
 from ui.expanders import update_current, update_history, update_running
@@ -11,7 +9,7 @@ from ui.params import create_params_ui
 import pancake
 from utils.config import config
 
-st.set_page_config(page_title="PancakeSwap Predictions V2",
+st.set_page_config(page_title="PancakeSwap Prediction V2",
                    page_icon=None,
                    layout="wide", initial_sidebar_state="auto",
                    menu_items=None)
@@ -24,7 +22,7 @@ async def update_ui(psp, current_epoch, plh_update):
 
 
 def main():
-    st.title("PancakeSwap Predictions V2")
+    st.title("PancakeSwap Prediction V2")
     if config["experimental"]["debug"]:
         st.warning(":warning: **Debug/Simulation Mode** is turned on. No actual bet will be placed."
                    " Change it in the **config.toml** file.")
