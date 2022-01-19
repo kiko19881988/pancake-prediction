@@ -28,7 +28,8 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
         else:
             value = value * factor
 
-    df_history_round = get_history(psp, current_epoch, back_in_time=20)
+    # retrieving the history in the last hour
+    df_history_round = get_history(psp, current_epoch, back_in_time=12)
 
     X = df_history_round.index
     X = X.astype(float)
