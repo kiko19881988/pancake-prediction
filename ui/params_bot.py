@@ -35,10 +35,25 @@ def create_params_ui(psp):
                        f"**{simulate_budget(base_bet=base_bet, factor=factor)} BNB** "
                        f"in your wallet.")
 
+    with st.sidebar.expander("Stop Criteria", expanded=True):
+        max_loss_threshold = st.number_input("Max Loss Threshold",
+                                             value=0.0, min_value=0.0, step=0.001,
+                                             format="%.5f")
+        gain_threshold = st.number_input("Gain Threshold",
+                                         value=0.0, min_value=0.0, step=0.001,
+                                         format="%.5f")
+        spend_threshold = st.number_input("Spend Threshold",
+                                          value=0.0, min_value=0.0, step=0.001,
+                                          format="%.5f")
+        st.caption("Set to zero to ignore the stop criteria.")
+
     return {"wallet_address": wallet_address,
             "private_key": private_key,
             "strategy": selected_strategy,
             "bet_epochs": bet_epochs,
             "base_bet": base_bet,
             "factor": factor,
+            "max_loss_threshold": max_loss_threshold,
+            "gain_threshold": gain_threshold,
+            "spend_threshold": spend_threshold,
             "psp": psp}

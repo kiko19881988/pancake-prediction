@@ -56,9 +56,13 @@ def main():
         while True:
             update_current(psp, current_epoch, plh_current)
             update_history(psp, current_epoch, plh_history)
-            update_running(psp, plh_running)
+            bet_status = update_running(psp, plh_running)
 
-            if btn_stop:
+            if btn_stop or \
+                    (0 > (sidebar_params["max_loss_threshold"] * -1) >= bet_status["estimated_gain"]) or \
+                    (0 < sidebar_params["spend_threshold"] <= bet_status["total_spent"]) or \
+                    (0 < sidebar_params["gain_threshold"] <= bet_status["estimated_gain"]):
+                plh_status.warning("Stop criteria triggered.")
                 break
 
             factor = sidebar_params["factor"]
