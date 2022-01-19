@@ -5,11 +5,12 @@ from ui.history import get_history
 
 
 def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
+    """
+    This strategy takes the last hour, and calculates the trend line to decide if
+    it should bet bear or bull.
+    Martingle technique is also being applied.
+    """
 
-    """
-    Add your bet logic here
-    This example bet random either up or down:
-    """
     last_epoch = df_running[
         (df_running["epoch"] <= current_epoch - 2)
         &
@@ -43,14 +44,14 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
     alpha = model.params['x1']
     # beta = model.params['const']
 
-    # because the database is sorted reversely, negative alpha is bulish
+    # because the dataframe is sorted descending, negative alpha is bullish
     if alpha < 0:
         # bullish
-        trx_hash = psp.betBull(value)
+        trx_hash = psp.bet_bull(value)
         position = "bull"
     else:
         # bearish
-        trx_hash = psp.betBear(value)
+        trx_hash = psp.bet_bear(value)
         position = "bear"
 
     return position, value, trx_hash

@@ -111,7 +111,7 @@ class Prediction:
 
             bet_time = dt.datetime.fromtimestamp(data["lockTimestamp"].iloc[0]) - dt.timedelta(seconds=config["bet"]["seconds_left"])
             # if config["bnb"]["claim"]:
-            #     handleClaim()
+            #     handle_claim()
             return [bet_time, current, error]
         except Exception as e:
             error = f"{e}"
@@ -119,50 +119,46 @@ class Prediction:
             return [None, None, error]
 
     # Bet Functions
-    def betBull(self, value):
+    def bet_bull(self, value):
+        epoch = self.get_current_epoch()
         if self.debug:
-            round = self.get_current_epoch()
             trx_hash = "trx_hash_sample_string"
         else:
             value = self.w3.toWei(value, 'ether')
-            round = self.get_current_epoch()
-            bull_bet = self.prediction_contract.functions.betBull(round).buildTransaction({
+            bull_bet = self.prediction_contract.functions.betBull(epoch).buildTransaction({
                 'from': self.address,
                 'nonce': self.w3.eth.getTransactionCount(self.address),
                 'value': value,
                 'gas': self.gas,
                 'gasPrice': self.gas_price,
             })
-            signed_tx = self.w3.eth.account.signTransaction(bull_bet, private_key=self.private_key)
-            self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+            signed_trx = self.w3.eth.account.signTransaction(bull_bet, private_key=self.private_key)
+            self.w3.eth.sendRawTransaction(signed_trx.rawTransaction)
+            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_trx.hash)}'
             value = self.w3.fromWei(value, 'ether')
 
-        self._update_running_df_bet(round, "bull", value, trx_hash)
-
+        self._update_running_df_bet(epoch, "bull", value, trx_hash)
         return trx_hash
 
-    def betBear(self, value):
+    def bet_bear(self, value):
+        epoch = self.get_current_epoch()
         if self.debug:
-            round = self.get_current_epoch()
             trx_hash = "trx_hash_sample_string"
         else:
             value = self.w3.toWei(value, 'ether')
-            round = self.get_current_epoch()
-            bear_bet = self.prediction_contract.functions.betBear(round).buildTransaction({
+            bear_bet = self.prediction_contract.functions.betBear(epoch).buildTransaction({
                 'from': self.address,
                 'nonce': self.w3.eth.getTransactionCount(self.address),
                 'value': value,
                 'gas': self.gas,
                 'gasPrice': self.gas_price,
             })
-            signed_tx = self.w3.eth.account.signTransaction(bear_bet, private_key=self.private_key)
-            self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+            signed_trx = self.w3.eth.account.signTransaction(bear_bet, private_key=self.private_key)
+            self.w3.eth.sendRawTransaction(signed_trx.rawTransaction)
+            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_trx.hash)}'
             value = self.w3.fromWei(value, 'ether')
 
-        self._update_running_df_bet(round, "bear", value, trx_hash)
-
+        self._update_running_df_bet(epoch, "bear", value, trx_hash)
         return trx_hash
 
     # Claim Functions
@@ -177,9 +173,9 @@ class Prediction:
                 'gas': 800000,
                 'gasPrice': 5000000000,
             })
-            signed_tx = self.w3.eth.account.signTransaction(claim, private_key=self.private_key)
-            self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-            claim_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+            signed_trx = self.w3.eth.account.signTransaction(claim, private_key=self.private_key)
+            self.w3.eth.sendRawTransaction(signed_trx.rawTransaction)
+            claim_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_trx.hash)}'
 
         for epoch in epochs:
             self._update_running_df_claim(epoch, claim_hash)
@@ -200,7 +196,7 @@ class Prediction:
             self._update_running_df_status(epoch, 0)
             return False
 
-    def fetchClaimable(self):
+    def fetch_claimable(self):
         epochs = []
         current = self.prediction_contract.functions.currentEpoch().call()
         epoch = current - 2
@@ -213,9 +209,9 @@ class Prediction:
             epoch -= 1
         return epochs
 
-    def handleClaim(self):
+    def handle_claim(self):
         trx_hash = None
-        epochs = self.fetchClaimable()
+        epochs = self.fetch_claimable()
         if len(epochs) > 0:
             trx_hash = self.claim(epochs)
         return len(epochs), trx_hash

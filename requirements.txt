@@ -3,5 +3,6 @@ numpy
 streamlit
 statsmodels
 toml
+requests
 retrying
 web3

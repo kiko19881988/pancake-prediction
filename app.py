@@ -1,5 +1,3 @@
-import math
-
 import streamlit as st
 import time
 import datetime as dt
@@ -112,7 +110,7 @@ def main():
             time.sleep(1)
 
     if st.button("Claim All"):
-        total_claims, claim_hash = psp.handleClaim()
+        total_claims, claim_hash = psp.handle_claim()
         if total_claims > 0:
             st.info(f"{total_claims} epochs were claimed: {claim_hash}")
 

@@ -1,14 +1,13 @@
 import math
-
 from pancake import Prediction
 
 
 def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
+    """
+    This strategy bets exactly the same as the last known epoch.
+    Martingle technique is also being applied.
+    """
 
-    """
-    Add your bet logic here
-    This example bet random either up or down:
-    """
     last_epoch = df_running[
         (df_running["epoch"] <= current_epoch - 2)
         &
@@ -33,15 +32,15 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
 
     if lock_price > close_price:
         # bearish
-        trx_hash = psp.betBear(value)
+        trx_hash = psp.bet_bear(value)
         position = "bear"
     elif lock_price < close_price:
         # bullish
-        trx_hash = psp.betBull(value)
+        trx_hash = psp.bet_bull(value)
         position = "bull"
     elif lock_price == close_price:
         # draw
-        trx_hash = psp.betBear(value)
+        trx_hash = psp.bet_bear(value)
         position = "bear"
 
     return position, value, trx_hash

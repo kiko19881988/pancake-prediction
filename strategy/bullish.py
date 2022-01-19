@@ -4,11 +4,11 @@ from pancake import Prediction
 
 
 def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
+    """
+    This strategy bets always bullish.
+    Martingle technique is also being applied.
+    """
 
-    """
-    Add your bet logic here
-    This example bet random either up or down:
-    """
     last_epoch = df_running[
         (df_running["epoch"] <= current_epoch - 2)
         &
@@ -27,7 +27,7 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
         else:
             value = value * factor
 
-    trx_hash = psp.betBull(value)
+    trx_hash = psp.bet_bull(value)
     position = "bull"
 
     return position, value, trx_hash
