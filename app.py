@@ -5,7 +5,7 @@ import asyncio
 
 import strategy
 from ui.expanders import update_current, update_history, update_running
-from ui.params import create_params_ui
+from ui.params_bot import create_params_ui
 import pancake
 from utils.check import check_results
 from utils.config import config

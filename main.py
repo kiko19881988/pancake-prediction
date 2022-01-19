@@ -1,6 +1,7 @@
 import streamlit as st
 import app
 import about.app
+import claim.app
 
 st.set_page_config(page_title="PancakeSwap Prediction V2",
                    page_icon=None,
@@ -8,6 +9,7 @@ st.set_page_config(page_title="PancakeSwap Prediction V2",
                    menu_items=None)
 
 menu_list = {"app": "Bot App",
+             "claim": "Claim Rewards",
              "about": "About"}
 
 
@@ -23,6 +25,8 @@ def main():
     # st.header(getAppCode(selected_app))
     if selected_app == "app":
         app.main()
+    elif selected_app == "claim":
+        claim.app.main()
     elif selected_app == "about":
         about.app.main()
 
