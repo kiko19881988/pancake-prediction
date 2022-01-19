@@ -13,4 +13,6 @@ def get_history(_psp, current_epoch, back_in_time=100):
         df_round = _psp.get_round(i)
         df_history_round = df_history_round.append(df_round)
 
+    df_history_round = df_history_round.sort_values('epoch', ascending=False)
+
     return df_history_round

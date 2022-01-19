@@ -1,3 +1,5 @@
+import random
+
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 import datetime as dt
@@ -14,6 +16,7 @@ class Prediction:
         self.smart_contract = config["general"]["smart_contract"]
         self.web3_provider = config["general"]["web3_provider"]
         self.abi_api = config["general"]["abi_api"]
+        self.debug = config["experimental"]["debug"]
 
         # initializing web3 object
         self.w3 = None
@@ -47,8 +50,13 @@ class Prediction:
     def set_private_key(self, private_key):
         self.private_key = private_key
 
+    def set_df_running(self, df):
+        self.df_running = df.copy()
+
     # Running History Dataframe
     def get_running_df(self):
+        self.df_running = self.df_running.sort_values('epoch', ascending=False)
+        self.df_running = self.df_running.reset_index(drop=True)
         return self.df_running
 
     # Wallet Functions
@@ -74,6 +82,25 @@ class Prediction:
         data = self._transform_round_data(data)
         return data
 
+    def get_round_stats(self, epoch):
+        df_round = self.get_round(epoch)
+
+        total_amount = (df_round["bullAmount"] + df_round["bearAmount"]).iloc[0]
+        if total_amount > 0:
+            bull_ratio = ((df_round["bullAmount"] / total_amount) * 100).iloc[0]
+            bear_ratio = ((df_round["bearAmount"] / total_amount) * 100).iloc[0]
+            bear_pay_ratio = ((df_round["bullAmount"] / df_round["bearAmount"])).iloc[0] + 1
+            bull_pay_ratio = ((df_round["bearAmount"] / df_round["bullAmount"])).iloc[0] + 1
+        else:
+            bull_ratio = None
+            bear_ratio = None
+            bear_pay_ratio = None
+            bull_pay_ratio = None
+
+        return {"total_amount": total_amount,
+                "bull_ratio": bull_ratio, "bear_ratio": bear_ratio,
+                "bear_pay_ratio": bear_pay_ratio, "bull_pay_ratio": bull_pay_ratio}
+
     def get_current_epoch(self):
         current_epoch = self.prediction_contract.functions.currentEpoch().call()
         return current_epoch
@@ -84,65 +111,77 @@ class Prediction:
             current = self.get_current_epoch()
             data = self.get_round(current)
 
-            bet_time = dt.datetime.fromtimestamp(data[2]) - dt.timedelta(seconds=config["bet"]["seconds_left"])
+            bet_time = dt.datetime.fromtimestamp(data["lockTimestamp"].iloc[0]) - dt.timedelta(seconds=config["bet"]["seconds_left"])
             # if config["bnb"]["claim"]:
             #     handleClaim()
             return [bet_time, current, error]
         except Exception as e:
             error = f"{e}"
+            print(error)
             return [None, None, error]
 
     # Bet Functions
     def betBull(self, value):
-        value = self.w3.toWei(value, 'ether')
-        round = self.get_current_epoch()
-        bull_bet = self.prediction_contract.functions.betBull(round).buildTransaction({
-            'from': self.address,
-            'nonce': self.w3.eth.getTransactionCount(self.address),
-            'value': value,
-            'gas': self.gas,
-            'gasPrice': self.gas_price,
-        })
-        signed_tx = self.w3.eth.account.signTransaction(bull_bet, private_key=self.private_key)
-        self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+        if self.debug:
+            round = self.get_current_epoch()
+            trx_hash = "trx_hash_sample_string"
+        else:
+            value = self.w3.toWei(value, 'ether')
+            round = self.get_current_epoch()
+            bull_bet = self.prediction_contract.functions.betBull(round).buildTransaction({
+                'from': self.address,
+                'nonce': self.w3.eth.getTransactionCount(self.address),
+                'value': value,
+                'gas': self.gas,
+                'gasPrice': self.gas_price,
+            })
+            signed_tx = self.w3.eth.account.signTransaction(bull_bet, private_key=self.private_key)
+            self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+            value = self.w3.fromWei(value, 'ether')
 
-        value = self.w3.fromWei(value, 'ether')
-        self._update_running_df_bet(self, round, "bull", value, trx_hash)
+        self._update_running_df_bet(round, "bull", value, trx_hash)
 
         return trx_hash
 
     def betBear(self, value):
-        value = self.w3.toWei(value, 'ether')
-        round = self.get_current_epoch()
-        bear_bet = self.prediction_contract.functions.betBear(round).buildTransaction({
-            'from': self.address,
-            'nonce': self.w3.eth.getTransactionCount(self.address),
-            'value': value,
-            'gas': self.gas,
-            'gasPrice': self.gas_price,
-        })
-        signed_tx = self.w3.eth.account.signTransaction(bear_bet, private_key=self.private_key)
-        self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+        if self.debug:
+            round = self.get_current_epoch()
+            trx_hash = "trx_hash_sample_string"
+        else:
+            value = self.w3.toWei(value, 'ether')
+            round = self.get_current_epoch()
+            bear_bet = self.prediction_contract.functions.betBear(round).buildTransaction({
+                'from': self.address,
+                'nonce': self.w3.eth.getTransactionCount(self.address),
+                'value': value,
+                'gas': self.gas,
+                'gasPrice': self.gas_price,
+            })
+            signed_tx = self.w3.eth.account.signTransaction(bear_bet, private_key=self.private_key)
+            self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+            value = self.w3.fromWei(value, 'ether')
 
-        value = self.w3.fromWei(value, 'ether')
-        self._update_running_df_bet(self, round, "bear", value, trx_hash)
+        self._update_running_df_bet(round, "bear", value, trx_hash)
 
         return trx_hash
 
     # Claim Functions
     def claim(self, epochs):
-        claim = self.prediction_contract.functions.claim(epochs).buildTransaction({
-            'from': self.address,
-            'nonce': self.w3.eth.getTransactionCount(self.address),
-            'value': 0,
-            'gas': 800000,
-            'gasPrice': 5000000000,
-        })
-        signed_tx = self.w3.eth.account.signTransaction(claim, private_key=self.private_key)
-        self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-        claim_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
+        if self.debug:
+            claim_hash = "trx_claim_hash_sample_string"
+        else:
+            claim = self.prediction_contract.functions.claim(epochs).buildTransaction({
+                'from': self.address,
+                'nonce': self.w3.eth.getTransactionCount(self.address),
+                'value': 0,
+                'gas': 800000,
+                'gasPrice': 5000000000,
+            })
+            signed_tx = self.w3.eth.account.signTransaction(claim, private_key=self.private_key)
+            self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+            claim_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_tx.hash)}'
 
         for epoch in epochs:
             self._update_running_df_claim(epoch, claim_hash)
@@ -150,19 +189,24 @@ class Prediction:
         return claim_hash
 
     def claimable(self, epoch):
+        if self.debug:
+            rand = random.getrandbits(1)
+            self._update_running_df_status(epoch, rand)
+            return rand
+
         claimable = self.prediction_contract.functions.claimable(epoch, self.address).call()
         if claimable:
-            self._update_running_df_status(self, epoch, 1)
+            self._update_running_df_status(epoch, 1)
             return True
         else:
-            self._update_running_df_status(self, epoch, 0)
+            self._update_running_df_status(epoch, 0)
             return False
 
     def fetchClaimable(self):
         epochs = []
         current = self.prediction_contract.functions.currentEpoch().call()
         epoch = current - 2
-        stop = epoch - config["bnb"]["range"]
+        stop = self.df_running["epoch"].min()
 
         while epoch >= stop:
             claimable = self.claimable(self, epoch)
@@ -236,11 +280,11 @@ class Prediction:
     def _update_running_df_bet(self, epoch, position, amount, trx_hash):
         # self.running_columns = ["epoch", "position", "amount", "trx_hash", "result", "claim_hash"]
         data = [epoch, position, amount, trx_hash, -1, 0]
-        temp = pd.DataFrame(data=data, columns=self.running_columns)
+        temp = pd.DataFrame(data=[data], columns=self.running_columns)
         self.df_running = self.df_running.append(temp)
 
     def _update_running_df_status(self, epoch, status):
-        self.df_running.loc[self.df_running.epoch == epoch, "status"] = status
+        self.df_running.loc[self.df_running.epoch == epoch, "result"] = status
 
     def _update_running_df_claim(self, epoch, claim_hash):
         self.df_running.loc[self.df_running.epoch == epoch, "claim_hash"] = claim_hash
