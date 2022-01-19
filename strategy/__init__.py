@@ -1,1 +1,1 @@
-from strategy.random import random
+from strategy.random import apply
