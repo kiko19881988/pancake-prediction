@@ -1,6 +1,7 @@
 pandas
 numpy
-web3
 streamlit
+statsmodels
 toml
 retrying
+web3

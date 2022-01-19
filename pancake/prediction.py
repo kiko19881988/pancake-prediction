@@ -1,5 +1,3 @@
-import random
-
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 import datetime as dt
@@ -37,7 +35,7 @@ class Prediction:
         self.gas = config["tx"]["gas"]
         self.gas_price = config["tx"]["gas_price"]
 
-        self.running_columns = ["epoch", "position", "amount", "trx_hash", "result", "claim_hash"]
+        self.running_columns = ["epoch", "position", "amount", "trx_hash", "reward", "claim_hash"]
         self.df_running = pd.DataFrame(columns=self.running_columns)
     # ---------------
     # PUBLIC METHODS
@@ -190,9 +188,9 @@ class Prediction:
 
     def claimable(self, epoch):
         if self.debug:
-            rand = random.getrandbits(1)
-            self._update_running_df_status(epoch, rand)
-            return rand
+            result = self._check_epoch_result(epoch)
+            self._update_running_df_status(epoch, result)
+            return result
 
         claimable = self.prediction_contract.functions.claimable(epoch, self.address).call()
         if claimable:
@@ -278,13 +276,47 @@ class Prediction:
         return df_current_round
 
     def _update_running_df_bet(self, epoch, position, amount, trx_hash):
-        # self.running_columns = ["epoch", "position", "amount", "trx_hash", "result", "claim_hash"]
-        data = [epoch, position, amount, trx_hash, -1, 0]
+        # self.running_columns = ["epoch", "position", "amount", "trx_hash", "reward", "claim_hash"]
+        data = [epoch, position, amount, trx_hash, 0, ""]
         temp = pd.DataFrame(data=[data], columns=self.running_columns)
         self.df_running = self.df_running.append(temp)
 
     def _update_running_df_status(self, epoch, status):
-        self.df_running.loc[self.df_running.epoch == epoch, "result"] = status
+        bet_value = self.df_running[self.df_running.epoch == epoch]["amount"].iloc[0]
+        bet_position = self.df_running[self.df_running.epoch == epoch]["position"].iloc[0]
+        if status == 0:
+            self.df_running.loc[self.df_running.epoch == epoch, "reward"] = -1 * bet_value
+        elif status == 1:
+            epoch_stats = self.get_round_stats(epoch)
+            if bet_position == "bull":
+                pay_ratio = epoch_stats["bull_pay_ratio"]
+            elif bet_position == "bear":
+                pay_ratio = epoch_stats["bear_pay_ratio"]
+
+            self.df_running.loc[self.df_running.epoch == epoch, "reward"] = bet_value * pay_ratio
 
     def _update_running_df_claim(self, epoch, claim_hash):
         self.df_running.loc[self.df_running.epoch == epoch, "claim_hash"] = claim_hash
+
+    def _check_epoch_result(self, epoch):
+        data = self.get_round(epoch)
+        lock_price = data["lockPrice"].iloc[0]
+        close_price = data["closePrice"].iloc[0]
+
+        if lock_price > close_price:
+            # bearish
+            result = -1
+        elif lock_price < close_price:
+            # bullish
+            result = 1
+        elif lock_price == close_price:
+            # draw
+            result = 0
+
+        bet_position = self.df_running[self.df_running["epoch"] == epoch]["position"].iloc[0]
+        if (bet_position == "bull") and (result == 1):
+            return 1
+        elif (bet_position == "bear") and (result == -1):
+            return 1
+        else:
+            return 0

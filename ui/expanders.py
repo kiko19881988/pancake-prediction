@@ -44,10 +44,14 @@ def update_running(psp, plh_update):
             df_running = st.session_state.df_running.copy()
             st.write(df_running)
 
-            total_loss = df_running[df_running["result"] == 0].sum()["amount"]
-            estimated_win = df_running[df_running["result"] == 1].sum()["amount"]
-            st.write(f"Total Loss: **{total_loss} BNB**")
-            st.write(f"Estimated Win: **{estimated_win * 2.0} BNB**")
+            total_loss = df_running[df_running["reward"] < 0].sum()["reward"]
+            loss_times = df_running[df_running["reward"] < 0].count()["reward"]
+            estimated_win = df_running[df_running["reward"] > 0].sum()["reward"]
+            win_times = df_running[df_running["reward"] > 0].count()["reward"]
+
+            st.write(f"Total Loss: **{total_loss:.5f} BNB** in {loss_times} rounds")
+            st.write(f"Estimated Win: **{estimated_win:.5f} BNB** in {win_times} rounds")
+            st.write(f"Estimated Gain: **{(estimated_win - total_loss):.5f} BNB**")
 
 
 def update_history(psp, current_epoch, plh_update):

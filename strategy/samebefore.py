@@ -1,5 +1,4 @@
 import math
-import random
 
 from pancake import Prediction
 
@@ -28,11 +27,20 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
         else:
             value = value * factor
 
-    rand = random.getrandbits(1)
-    if rand:
+    data = psp.get_round_stats(current_epoch - 2)
+    lock_price = data["lockPrice"].iloc[0]
+    close_price = data["closePrice"].iloc[0]
+
+    if lock_price > close_price:
+        # bearish
+        trx_hash = psp.betBear(value)
+        position = "bear"
+    elif lock_price < close_price:
+        # bullish
         trx_hash = psp.betBull(value)
         position = "bull"
-    else:
+    elif lock_price == close_price:
+        # draw
         trx_hash = psp.betBear(value)
         position = "bear"
 

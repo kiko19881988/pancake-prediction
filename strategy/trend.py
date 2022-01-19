@@ -1,7 +1,7 @@
 import math
-import random
-
+import statsmodels.api as sm
 from pancake import Prediction
+from ui.history import get_history
 
 
 def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
@@ -28,11 +28,26 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
         else:
             value = value * factor
 
-    rand = random.getrandbits(1)
-    if rand:
+    df_history_round = get_history(psp, current_epoch, back_in_time=20)
+
+    X = df_history_round.index
+    X = X.astype(float)
+
+    y = df_history_round['closePrice']
+    y = y.astype(float)
+
+    X = sm.add_constant(X)
+    model = sm.OLS(y, X).fit()
+
+    alpha = model.params['x1']
+    # beta = model.params['const']
+
+    if alpha > 0:
+        # bullish
         trx_hash = psp.betBull(value)
         position = "bull"
     else:
+        # bearish
         trx_hash = psp.betBear(value)
         position = "bear"
 

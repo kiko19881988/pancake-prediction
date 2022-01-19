@@ -1,5 +1,4 @@
 import math
-import random
 
 from pancake import Prediction
 
@@ -28,12 +27,7 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
         else:
             value = value * factor
 
-    rand = random.getrandbits(1)
-    if rand:
-        trx_hash = psp.betBull(value)
-        position = "bull"
-    else:
-        trx_hash = psp.betBear(value)
-        position = "bear"
+    trx_hash = psp.betBull(value)
+    position = "bull"
 
     return position, value, trx_hash

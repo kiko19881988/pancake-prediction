@@ -2,7 +2,8 @@ import streamlit as st
 from ui.wallet import update_balance
 from utils.wallet import simulate_budget
 
-STRATEGIES = ["Random"]
+STRATEGIES = ["Random", "Same-Before", "Trend", "Bullish", "Bearish"]
+EPOCHS = ["All", "Odd", "Even"]
 
 
 def create_params_ui(psp):
@@ -21,6 +22,7 @@ def create_params_ui(psp):
         psp.set_private_key(private_key=private_key)
 
     selected_strategy = st.sidebar.selectbox("Strategy", options=STRATEGIES)
+    bet_epochs = st.sidebar.selectbox("Bet on Epochs", options=EPOCHS, index=1)
     base_bet = st.sidebar.number_input("Base Bet (BNB)",
                                        value=float(min_bet), min_value=float(min_bet), step=0.001,
                                        format="%.5f")
@@ -36,6 +38,7 @@ def create_params_ui(psp):
     return {"wallet_address": wallet_address,
             "private_key": private_key,
             "strategy": selected_strategy,
+            "bet_epochs": bet_epochs,
             "base_bet": base_bet,
             "factor": factor,
             "psp": psp}
