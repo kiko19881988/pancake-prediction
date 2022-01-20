@@ -25,12 +25,17 @@ def update_current(psp, current_epoch, plh_update):
             else:
                 st.warning("No deposit yet. Wait few seconds...")
 
+            return {"bull_ratio": bull_ratio,
+                    "bear_ratio": bear_ratio,
+                    "bear_pay_ratio": bear_pay_ratio,
+                    "bull_pay_ratio": bull_pay_ratio}
+
 
 def update_running(psp, plh_update):
     # running history
     df_running = psp.get_running_df()
     with plh_update:
-        running_expander = st.expander(f"Running History (#{df_running.shape[0]})", expanded=True)
+        running_expander = st.expander(f"Positions History (#{df_running.shape[0]})", expanded=True)
         with running_expander:
             if "df_running" in st.session_state:
                 if not st.session_state.df_running.equals(df_running):
@@ -51,7 +56,12 @@ def update_running(psp, plh_update):
             win_times = df_running[df_running["reward"] > 0].count()["reward"]
             estimated_gain = estimated_win - total_loss
 
+            last_win_epoch = df_running[df_running["reward"] > 0].max()["epoch"]
+            recent_loss = df_running[df_running["epoch"] > last_win_epoch].sum()["reward"]
+            recent_loss_times = df_running[df_running["epoch"] > last_win_epoch].count()["reward"]
+
             st.write(f"Total Spent: **{total_spent:.5f} BNB** in {df_running.shape[0]} rounds")
+            st.write(f"Recent Loss: **{recent_loss:.5f} BNB** in {recent_loss_times} rounds")
             st.write(f"Total Loss: **{total_loss:.5f} BNB** in {loss_times} rounds")
             st.write(f"Estimated Win: **{estimated_win:.5f} BNB** in {win_times} rounds")
             st.write(f"Estimated Gain: **{estimated_win + total_loss:.5f} BNB**")
@@ -61,7 +71,9 @@ def update_running(psp, plh_update):
                     "loss_times": loss_times,
                     "estimated_win": estimated_win,
                     "win_times": win_times,
-                    "estimated_gain": estimated_gain}
+                    "estimated_gain": estimated_gain,
+                    "recent_loss": recent_loss,
+                    "recent_loss_times": recent_loss_times}
 
 
 def update_history(psp, current_epoch, plh_update):

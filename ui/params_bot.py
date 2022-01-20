@@ -29,10 +29,19 @@ def create_params_ui(psp):
     st.sidebar.caption(f'Min Bet: {min_bet:.5f} BNB')
 
     factor = st.sidebar.number_input("Multiplication Factor",
-                                     value=2.0, min_value=2.0,
+                                     value=2.0, min_value=0.0,
                                      step=0.1, max_value=10.0)
+    st.sidebar.caption("Set to zero for auto factoring")
+
+    budget_factor = factor
+    safe_bet = True
+    if factor == 0:
+        safe_bet = st.sidebar.checkbox("Safe Bet for Auto Factoring", value=True)
+        st.sidebar.caption("Safe bet takes the minimum payout factor for each round")
+        budget_factor = 2.5
+
     st.sidebar.warning(f"You may need "
-                       f"**{simulate_budget(base_bet=base_bet, factor=factor)} BNB** "
+                       f"**{simulate_budget(base_bet=base_bet, factor=budget_factor)} BNB** "
                        f"in your wallet.")
 
     with st.sidebar.expander("Stop Criteria", expanded=True):
@@ -53,6 +62,7 @@ def create_params_ui(psp):
             "bet_epochs": bet_epochs,
             "base_bet": base_bet,
             "factor": factor,
+            "safe_bet": safe_bet,
             "max_loss_threshold": max_loss_threshold,
             "gain_threshold": gain_threshold,
             "spend_threshold": spend_threshold,

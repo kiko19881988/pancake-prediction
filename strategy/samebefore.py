@@ -2,7 +2,8 @@ import math
 from pancake import Prediction
 
 
-def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
+def apply(psp: Prediction, df_running, current_epoch,
+          base_bet, value, factor, safe_bet, current_round_stats, bet_status):
     """
     This strategy bets exactly the same as the last known epoch.
     Martingle technique is also being applied.
@@ -29,6 +30,21 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
     data = psp.get_round(current_epoch - 2)
     lock_price = data["lockPrice"].iloc[0]
     close_price = data["closePrice"].iloc[0]
+
+    if factor == 0:
+        if safe_bet:
+            custom_factor = min(current_round_stats["bear_pay_ratio"], current_round_stats["bull_pay_ratio"])
+        else:
+            if lock_price < close_price:
+                # bull
+                custom_factor = current_round_stats["bull_pay_ratio"]
+            else:
+                # bear
+                custom_factor = current_round_stats["bear_pay_ratio"]
+
+        value = (bet_status["recent_loss"] + base_bet) / custom_factor
+        if value < base_bet:
+            value = base_bet
 
     if lock_price > close_price:
         # bearish

@@ -87,24 +87,42 @@ def main():
                     if (bet_epochs == "All") \
                             or (current_epoch % 2 == 0 and bet_epochs == "Even") \
                             or (current_epoch % 2 == 1 and bet_epochs == "Odd"):
+
+                        current_round_stats = update_current(psp, current_epoch, plh_current)
+                        bet_status = update_running(psp, plh_running)
                         i_bet += 1
 
                         # --- START STRATEGY HERE ---
                         if sidebar_params["strategy"] == "Random":
                             position, value, trx_hash = strategy.random.apply(psp, df_running, current_epoch,
-                                                                              base_bet, value, factor)
+                                                                              base_bet, value, factor,
+                                                                              sidebar_params["safe_bet"],
+                                                                              current_round_stats,
+                                                                              bet_status)
                         elif sidebar_params["strategy"] == "Bullish":
                             position, value, trx_hash = strategy.bullish.apply(psp, df_running, current_epoch,
-                                                                               base_bet, value, factor)
+                                                                               base_bet, value, factor,
+                                                                               sidebar_params["safe_bet"],
+                                                                               current_round_stats,
+                                                                               bet_status)
                         elif sidebar_params["strategy"] == "Bearish":
                             position, value, trx_hash = strategy.bearish.apply(psp, df_running, current_epoch,
-                                                                               base_bet, value, factor)
+                                                                               base_bet, value, factor,
+                                                                               sidebar_params["safe_bet"],
+                                                                               current_round_stats,
+                                                                               bet_status)
                         elif sidebar_params["strategy"] == "Same-Before":
                             position, value, trx_hash = strategy.samebefore.apply(psp, df_running, current_epoch,
-                                                                                  base_bet, value, factor)
+                                                                                  base_bet, value, factor,
+                                                                                  sidebar_params["safe_bet"],
+                                                                                  current_round_stats,
+                                                                                  bet_status)
                         elif sidebar_params["strategy"] == "Trend":
                             position, value, trx_hash = strategy.trend.apply(psp, df_running, current_epoch,
-                                                                             base_bet, value, factor)
+                                                                             base_bet, value, factor,
+                                                                             sidebar_params["safe_bet"],
+                                                                             current_round_stats,
+                                                                             bet_status)
 
                         # --- END STRATEGY HERE ---
                         plh_status.success(f"Bet #{i_bet} - Value: {value} - Position: {position} - Trx: {trx_hash}")

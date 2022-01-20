@@ -4,7 +4,8 @@ from pancake import Prediction
 from ui.history import get_history
 
 
-def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
+def apply(psp: Prediction, df_running, current_epoch,
+          base_bet, value, factor, safe_bet, current_round_stats, bet_status):
     """
     This strategy takes the last hour, and calculates the trend line to decide if
     it should bet bear or bull.
@@ -29,8 +30,8 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
         else:
             value = value * factor
 
-    # retrieving the history in the last hour
-    df_history_round = get_history(psp, current_epoch, back_in_time=12)
+    # retrieving the history in the last 30 min (6 rounds)
+    df_history_round = get_history(psp, current_epoch, back_in_time=6)
 
     X = df_history_round.index
     X = X.astype(float)
@@ -43,6 +44,21 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
 
     alpha = model.params['x1']
     # beta = model.params['const']
+
+    if factor == 0:
+        if safe_bet:
+            custom_factor = min(current_round_stats["bear_pay_ratio"], current_round_stats["bull_pay_ratio"])
+        else:
+            if alpha < 0:
+                # bull
+                custom_factor = current_round_stats["bull_pay_ratio"]
+            else:
+                # bear
+                custom_factor = current_round_stats["bear_pay_ratio"]
+
+        value = (bet_status["recent_loss"] + base_bet) / custom_factor
+        if value < base_bet:
+            value = base_bet
 
     # because the dataframe is sorted descending, negative alpha is bullish
     if alpha < 0:

@@ -3,7 +3,8 @@ import math
 from pancake import Prediction
 
 
-def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
+def apply(psp: Prediction, df_running, current_epoch,
+          base_bet, value, factor, safe_bet, current_round_stats, bet_status):
     """
     This strategy bets always bearish.
     Martingle technique is also being applied.
@@ -26,6 +27,16 @@ def apply(psp: Prediction, df_running, current_epoch, base_bet, value, factor):
             value = base_bet
         else:
             value = value * factor
+
+    if factor == 0:
+        if safe_bet:
+            custom_factor = min(current_round_stats["bear_pay_ratio"], current_round_stats["bull_pay_ratio"])
+        else:
+            custom_factor = current_round_stats["bear_pay_ratio"]
+
+        value = (bet_status["recent_loss"] + base_bet) / custom_factor
+        if value < base_bet:
+            value = base_bet
 
     trx_hash = psp.bet_bear(value)
     position = "bear"
