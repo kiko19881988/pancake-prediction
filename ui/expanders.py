@@ -1,3 +1,5 @@
+import math
+
 import streamlit as st
 from ui.history import get_history
 from utils.round import important_round_columns, current_round_columns
@@ -24,11 +26,6 @@ def update_current(psp, current_epoch, plh_update):
                 col2.write(f"Bearish **x{bear_pay_ratio:.2f}** - {bear_ratio:.2f}%")
             else:
                 st.warning("No deposit yet. Wait few seconds...")
-
-            return {"bull_ratio": bull_ratio,
-                    "bear_ratio": bear_ratio,
-                    "bear_pay_ratio": bear_pay_ratio,
-                    "bull_pay_ratio": bull_pay_ratio}
 
 
 def update_running(psp, plh_update):
@@ -57,8 +54,13 @@ def update_running(psp, plh_update):
             estimated_gain = estimated_win - total_loss
 
             last_win_epoch = df_running[df_running["reward"] > 0].max()["epoch"]
-            recent_loss = abs(df_running[df_running["epoch"] > last_win_epoch].sum()["reward"])
-            recent_loss_times = df_running[df_running["epoch"] > last_win_epoch].count()["reward"]
+            if last_win_epoch is None or math.isnan(last_win_epoch):
+                recent_loss = abs(df_running.sum()["reward"])
+                recent_loss_times = df_running[df_running["reward"] < 0].count()["reward"]
+            else:
+                recent_loss = abs(df_running[df_running["epoch"] > last_win_epoch].sum()["reward"])
+                recent_loss_times = df_running[(df_running["epoch"] > last_win_epoch)
+                                               & (df_running["reward"] < 0)].count()["reward"]
 
             st.write(f"Total Spent: **{total_spent:.5f} BNB** in {df_running.shape[0]} rounds")
             st.write(f"Recent Loss: **{recent_loss:.5f} BNB** in {recent_loss_times} rounds")

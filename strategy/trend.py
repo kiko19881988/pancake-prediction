@@ -5,12 +5,13 @@ from ui.history import get_history
 
 
 def apply(psp: Prediction, df_running, current_epoch,
-          base_bet, value, factor, safe_bet, current_round_stats, bet_status):
+          base_bet, value, factor, safe_bet, bet_status):
     """
     This strategy takes the last hour, and calculates the trend line to decide if
     it should bet bear or bull.
     Martingle technique is also being applied.
     """
+    current_round_stats = psp.get_round_stats(current_epoch)
 
     last_epoch = df_running[
         (df_running["epoch"] <= current_epoch - 2)
@@ -45,6 +46,7 @@ def apply(psp: Prediction, df_running, current_epoch,
     alpha = model.params['x1']
     # beta = model.params['const']
 
+    custom_factor = 0
     if factor == 0:
         if safe_bet:
             custom_factor = min(current_round_stats["bear_pay_ratio"], current_round_stats["bull_pay_ratio"])
@@ -70,4 +72,5 @@ def apply(psp: Prediction, df_running, current_epoch,
         trx_hash = psp.bet_bear(value)
         position = "bear"
 
+    print(f"[{current_epoch}] Trend: {position} - V: {value} - F: x{factor} - CF: x{custom_factor} - Loss: {bet_status['recent_loss']}")
     return position, value, trx_hash

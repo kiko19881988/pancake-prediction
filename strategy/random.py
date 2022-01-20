@@ -5,11 +5,12 @@ from pancake import Prediction
 
 
 def apply(psp: Prediction, df_running, current_epoch,
-          base_bet, value, factor, safe_bet, current_round_stats, bet_status):
+          base_bet, value, factor, safe_bet, bet_status):
     """
     This strategy bets randomly either up or down.
     Martingle technique is also being applied.
     """
+    current_round_stats = psp.get_round_stats(current_epoch)
 
     last_epoch = df_running[
         (df_running["epoch"] <= current_epoch - 2)

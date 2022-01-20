@@ -14,7 +14,7 @@ def main():
     csv_file_uploaded = st.file_uploader("Upload Running CSV File", type=['csv'])
     if csv_file_uploaded is not None:
         df = pd.read_csv(csv_file_uploaded)
-        st.write(df)
+        st.dataframe(df.style.bar(subset=['reward'], align='mid', color=['#d65f5f', '#5fba7d']))
 
         total_reward = df[df.reward > 0].sum()["reward"]
         win_epochs = df[df.reward > 0]["epoch"].tolist()
