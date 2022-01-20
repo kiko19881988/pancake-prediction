@@ -1,5 +1,5 @@
 import math
-
+import pandas as pd
 import streamlit as st
 from ui.history import get_history
 from utils.round import important_round_columns, current_round_columns
@@ -62,11 +62,15 @@ def update_running(psp, plh_update):
                 recent_loss_times = df_running[(df_running["epoch"] > last_win_epoch)
                                                & (df_running["reward"] < 0)].count()["reward"]
 
-            st.write(f"Total Spent: **{total_spent:.5f} BNB** in {df_running.shape[0]} rounds")
-            st.write(f"Recent Loss: **{recent_loss:.5f} BNB** in {recent_loss_times} rounds")
-            st.write(f"Total Loss: **{total_loss:.5f} BNB** in {loss_times} rounds")
-            st.write(f"Estimated Win: **{estimated_win:.5f} BNB** in {win_times} rounds")
-            st.write(f"Estimated Gain: **{estimated_gain:.5f} BNB**")
+            st.subheader("Overview")
+            summary_df_columns = ["Total Spent", "Recent Loss", "Total Loss", "Estimated Win", "Estimated Gain"]
+            summary_data = [[f"{total_spent:.5f} BNB / {df_running.shape[0]}",
+                             f"{recent_loss:.5f} BNB / {recent_loss_times}",
+                             f"{total_loss:.5f} BNB / {loss_times}",
+                             f"{estimated_win:.5f} BNB / {win_times}",
+                             f"{estimated_gain:.5f} BNB"]]
+            summary_df = pd.DataFrame(data=summary_data, columns=summary_df_columns)
+            st.dataframe(summary_df)
 
             return {"total_spent": total_spent,
                     "total_loss": total_loss,
