@@ -66,7 +66,7 @@ def update_running(psp, plh_update):
             st.write(f"Recent Loss: **{recent_loss:.5f} BNB** in {recent_loss_times} rounds")
             st.write(f"Total Loss: **{total_loss:.5f} BNB** in {loss_times} rounds")
             st.write(f"Estimated Win: **{estimated_win:.5f} BNB** in {win_times} rounds")
-            st.write(f"Estimated Gain: **{estimated_win + total_loss:.5f} BNB**")
+            st.write(f"Estimated Gain: **{estimated_gain:.5f} BNB**")
 
             return {"total_spent": total_spent,
                     "total_loss": total_loss,
