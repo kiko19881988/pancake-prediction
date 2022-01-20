@@ -51,7 +51,7 @@ def update_running(psp, plh_update):
             loss_times = df_running[df_running["reward"] < 0].count()["reward"]
             estimated_win = df_running[df_running["reward"] > 0].sum()["reward"]
             win_times = df_running[df_running["reward"] > 0].count()["reward"]
-            estimated_gain = estimated_win - total_loss
+            estimated_gain = df_running.sum()["reward"]
 
             last_win_epoch = df_running[df_running["reward"] > 0].max()["epoch"]
             if last_win_epoch is None or math.isnan(last_win_epoch):
