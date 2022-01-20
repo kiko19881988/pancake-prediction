@@ -57,7 +57,7 @@ def update_running(psp, plh_update):
             estimated_gain = estimated_win - total_loss
 
             last_win_epoch = df_running[df_running["reward"] > 0].max()["epoch"]
-            recent_loss = df_running[df_running["epoch"] > last_win_epoch].sum()["reward"]
+            recent_loss = abs(df_running[df_running["epoch"] > last_win_epoch].sum()["reward"])
             recent_loss_times = df_running[df_running["epoch"] > last_win_epoch].count()["reward"]
 
             st.write(f"Total Spent: **{total_spent:.5f} BNB** in {df_running.shape[0]} rounds")
