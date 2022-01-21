@@ -21,6 +21,7 @@ def create_params_ui(psp):
     if len(private_key) > 0:
         psp.set_private_key(private_key=private_key)
 
+    bet_estimated_timing = st.sidebar.checkbox("Bet based on estimated time", value=True)
     selected_strategy = st.sidebar.selectbox("Strategy", options=STRATEGIES)
     bet_epochs = st.sidebar.selectbox("Bet on Epochs", options=EPOCHS, index=1)
     base_bet = st.sidebar.number_input("Base Bet (BNB)",
@@ -61,6 +62,7 @@ def create_params_ui(psp):
 
     return {"wallet_address": wallet_address,
             "private_key": private_key,
+            "bet_estimated_timing": bet_estimated_timing,
             "strategy": selected_strategy,
             "bet_epochs": bet_epochs,
             "base_bet": base_bet,

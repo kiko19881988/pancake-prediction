@@ -11,9 +11,9 @@ from utils.check import check_results
 from utils.config import config
 
 
-async def update_ui(psp, current_epoch, plh_update):
+async def update_ui(psp, plh_update):
     while True:
-        update_current(psp, current_epoch, plh_update)
+        update_current(psp, plh_update)
         _ = await asyncio.sleep(1)
 
 
@@ -32,7 +32,7 @@ def main():
     current_epoch = psp.get_current_epoch()
 
     plh_current = st.empty()
-    update_current(psp, current_epoch, plh_current)
+    update_current(psp, plh_current)
 
     plh_history = st.empty()
     update_history(psp, current_epoch, plh_history)
@@ -54,7 +54,7 @@ def main():
         value = base_bet = sidebar_params["base_bet"]
 
         while True:
-            update_current(psp, current_epoch, plh_current)
+            update_current(psp, plh_current)
             update_history(psp, current_epoch, plh_history)
             bet_status = update_running(psp, plh_running)
 
@@ -69,10 +69,14 @@ def main():
             bet_epochs = sidebar_params["bet_epochs"]
 
             df_running = psp.get_running_df()
-            current_round = psp.new_round()
+            current_epoch = psp.get_current_epoch()
+            round_stats = psp.get_round_stats(current_epoch)
 
-            bet_time = current_round[0]
-            current_epoch = current_round[1]
+            if sidebar_params["bet_estimated_timing"]:
+                bet_time = psp.bet_time
+            else:
+                bet_time = round_stats["round_bet_time"]
+
             now = dt.datetime.now()
 
             plh_timer.info(f"""
@@ -125,7 +129,7 @@ def main():
 
             time.sleep(1)
 
-    asyncio.run(update_ui(psp, current_epoch, plh_current))
+    asyncio.run(update_ui(psp, plh_current))
 
 
 if __name__ == '__main__':

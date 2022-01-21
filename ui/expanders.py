@@ -1,13 +1,16 @@
 import math
 import pandas as pd
 import streamlit as st
+import datetime as dt
 from ui.history import get_history
 from utils.round import important_round_columns, current_round_columns
 
 
-def update_current(psp, current_epoch, plh_update):
+def update_current(psp, plh_update):
     with plh_update:
         # current round
+        current_epoch = psp.get_current_epoch()
+
         df_current_round = psp.get_round(current_epoch)
         current_expander = st.expander(f"Current #{current_epoch}", expanded=True)
         with current_expander:
@@ -18,6 +21,11 @@ def update_current(psp, current_epoch, plh_update):
             bear_pay_ratio = round_stats["bear_pay_ratio"]
             bull_pay_ratio = round_stats["bull_pay_ratio"]
 
+            round_start_time = round_stats["round_start_time"]
+            round_bet_time = round_stats["round_bet_time"]
+            round_lock_time = round_stats["round_lock_time"]
+            round_close_time = round_stats["round_close_time"]
+
             st.write(df_current_round[current_round_columns])
 
             if total_amount > 0:
@@ -26,6 +34,26 @@ def update_current(psp, current_epoch, plh_update):
                 col2.write(f"Bearish **x{bear_pay_ratio:.2f}** - {bear_ratio:.2f}%")
             else:
                 st.warning("No deposit yet. Wait few seconds...")
+
+            st.info(f"Now: {dt.datetime.now()}")
+
+            st.subheader("Contract Registered Time")
+            time_df_columns = ["Start", "Bet", "Lock", "Close"]
+            time_data = [[f"{round_start_time}",
+                          f"{round_bet_time}",
+                          f"{round_lock_time}",
+                          f"{round_close_time}"]]
+            time_df = pd.DataFrame(data=time_data, columns=time_df_columns)
+            st.dataframe(time_df)
+
+            st.subheader("Estimated Time")
+            time_data = [[f"{psp.start_time}",
+                          f"{psp.bet_time}",
+                          f"{psp.lock_time}",
+                          f"{psp.close_time}"]]
+            time_df = pd.DataFrame(data=time_data, columns=time_df_columns)
+            st.dataframe(time_df)
+            st.caption("Please wait for a new round to be started for accurate timing.")
 
 
 def update_running(psp, plh_update):
@@ -64,7 +92,8 @@ def update_running(psp, plh_update):
                                                & (df_running["reward"] < 0)].count()["reward"]
 
             st.subheader("Overview")
-            summary_df_columns = ["Total Spent", "Max Spent", "Recent Loss", "Total Loss", "Estimated Win", "Estimated Gain"]
+            summary_df_columns = ["Total Spent", "Max Spent", "Recent Loss", "Total Loss", "Estimated Win",
+                                  "Estimated Gain"]
             summary_data = [[f"{total_spent:.5f} BNB / {df_running.shape[0]}",
                              f"{max_spent} BNB",
                              f"{recent_loss:.5f} BNB / {recent_loss_times}",

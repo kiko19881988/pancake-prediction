@@ -5,5 +5,5 @@ statsmodels
 jupyterlab
 toml
 requests
-retrying
+retry
 web3

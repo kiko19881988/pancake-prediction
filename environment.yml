@@ -12,6 +12,6 @@ dependencies:
   - web3
   - pip
   - pip:
-      - retrying
+      - retry
       - streamlit
       - toml

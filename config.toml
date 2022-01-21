@@ -1,6 +1,6 @@
 [general]
-web3_provider = "https://bsc-dataseed1.binance.org/"
-# web3_provider = "https://data-seed-prebsc-1-s1.binance.org:8545"
+# web3_provider = "https://bsc-dataseed1.binance.org/"
+web3_provider = "https://bsc-dataseed1.ninicoin.io/"
 abi_api = "https://api.bscscan.com/api"
 smart_contract = "0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA"
 
@@ -14,9 +14,14 @@ gas_price = 5000000000
 
 [bet]
 # SECONDS LEFT BET AT
-seconds_left = 40
+seconds_left = 30
+seconds_left_at_estimated_time = 10
 
 [bnb]
 # IF TRUE, WHEN BNB BALANCE IS BELLOW BNB_LIMIT
 limit = 0.1
 claim = true
+
+[retry]
+max_try = 3
+delay = 1
