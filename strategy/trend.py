@@ -31,8 +31,8 @@ def apply(psp: Prediction, df_running, current_epoch,
         else:
             value = value * factor
 
-    # retrieving the history in the last 30 min (6 rounds)
-    df_history_round = get_history(psp, current_epoch, back_in_time=6)
+    # retrieving the history in the last 15 min (3 rounds)
+    df_history_round = get_history(psp, current_epoch, back_in_time=3)
 
     X = df_history_round.index
     X = X.astype(float)
@@ -48,17 +48,14 @@ def apply(psp: Prediction, df_running, current_epoch,
 
     custom_factor = 0
     if factor == 0:
-        if safe_bet:
-            custom_factor = min(current_round_stats["bear_pay_ratio"], current_round_stats["bull_pay_ratio"])
+        if alpha < 0:
+            # bull
+            custom_factor = current_round_stats["bull_pay_ratio"] - safe_bet
         else:
-            if alpha < 0:
-                # bull
-                custom_factor = current_round_stats["bull_pay_ratio"]
-            else:
-                # bear
-                custom_factor = current_round_stats["bear_pay_ratio"]
+            # bear
+            custom_factor = current_round_stats["bear_pay_ratio"] - safe_bet
 
-        value = (bet_status["recent_loss"] + base_bet) / custom_factor
+        value = (bet_status["recent_loss"] + base_bet) / (custom_factor - 1)
         if value < base_bet:
             value = base_bet
 

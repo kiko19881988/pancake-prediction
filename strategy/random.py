@@ -33,17 +33,14 @@ def apply(psp: Prediction, df_running, current_epoch,
     rand = random.getrandbits(1)
 
     if factor == 0:
-        if safe_bet:
-            custom_factor = min(current_round_stats["bear_pay_ratio"], current_round_stats["bull_pay_ratio"])
+        if rand:
+            # bull
+            custom_factor = current_round_stats["bull_pay_ratio"] - safe_bet
         else:
-            if rand:
-                # bull
-                custom_factor = current_round_stats["bull_pay_ratio"]
-            else:
-                # bear
-                custom_factor = current_round_stats["bear_pay_ratio"]
+            # bear
+            custom_factor = current_round_stats["bear_pay_ratio"] - safe_bet
 
-        value = (bet_status["recent_loss"] + base_bet) / custom_factor
+        value = (bet_status["recent_loss"] + base_bet) / (custom_factor - 1)
         if value < base_bet:
             value = base_bet
 

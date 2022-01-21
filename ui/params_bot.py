@@ -34,10 +34,12 @@ def create_params_ui(psp):
     st.sidebar.caption("Set to zero for auto factoring")
 
     budget_factor = factor
-    safe_bet = True
+    safe_bet = 0.0
     if factor == 0:
-        safe_bet = st.sidebar.checkbox("Safe Bet for Auto Factoring", value=True)
-        st.sidebar.caption("Safe Bet takes the minimum payout factor for each round, "
+        safe_bet = st.sidebar.number_input("Safe Bet for Auto Factoring",
+                                           value=0.2, min_value=0.0, max_value=1.0,
+                                           step=0.1)
+        st.sidebar.caption("Safe Bet deducts a margin from payout factor for each round, "
                            "and it increases the maximum required fund.")
         budget_factor = 2.5
 

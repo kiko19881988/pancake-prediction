@@ -52,6 +52,7 @@ def update_running(psp, plh_update):
             estimated_win = df_running[df_running["reward"] > 0].sum()["reward"]
             win_times = df_running[df_running["reward"] > 0].count()["reward"]
             estimated_gain = df_running.sum()["reward"]
+            max_spent = df_running.max()["amount"]
 
             last_win_epoch = df_running[df_running["reward"] > 0].max()["epoch"]
             if last_win_epoch is None or math.isnan(last_win_epoch):
@@ -63,8 +64,9 @@ def update_running(psp, plh_update):
                                                & (df_running["reward"] < 0)].count()["reward"]
 
             st.subheader("Overview")
-            summary_df_columns = ["Total Spent", "Recent Loss", "Total Loss", "Estimated Win", "Estimated Gain"]
+            summary_df_columns = ["Total Spent", "Max Spent", "Recent Loss", "Total Loss", "Estimated Win", "Estimated Gain"]
             summary_data = [[f"{total_spent:.5f} BNB / {df_running.shape[0]}",
+                             f"{max_spent} BNB",
                              f"{recent_loss:.5f} BNB / {recent_loss_times}",
                              f"{total_loss:.5f} BNB / {loss_times}",
                              f"{estimated_win:.5f} BNB / {win_times}",
@@ -73,6 +75,7 @@ def update_running(psp, plh_update):
             st.dataframe(summary_df)
 
             return {"total_spent": total_spent,
+                    "max_spent": max_spent,
                     "total_loss": total_loss,
                     "loss_times": loss_times,
                     "estimated_win": estimated_win,

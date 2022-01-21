@@ -87,8 +87,8 @@ class Prediction:
         if total_amount > 0:
             bull_ratio = ((df_round["bullAmount"] / total_amount) * 100).iloc[0]
             bear_ratio = ((df_round["bearAmount"] / total_amount) * 100).iloc[0]
-            bear_pay_ratio = ((df_round["bullAmount"] / df_round["bearAmount"])).iloc[0] + 1
-            bull_pay_ratio = ((df_round["bearAmount"] / df_round["bullAmount"])).iloc[0] + 1
+            bear_pay_ratio = (total_amount / df_round["bearAmount"]).iloc[0]
+            bull_pay_ratio = (total_amount / df_round["bullAmount"]).iloc[0]
         else:
             bull_ratio = None
             bear_ratio = None
@@ -190,9 +190,11 @@ class Prediction:
 
         claimable = self.prediction_contract.functions.claimable(epoch, self.address).call()
         if claimable:
+            # Win
             self._update_running_df_status(epoch, 1)
             return True
         else:
+            # Loss
             self._update_running_df_status(epoch, 0)
             return False
 
@@ -277,19 +279,21 @@ class Prediction:
         temp = pd.DataFrame(data=[data], columns=self.running_columns)
         self.df_running = self.df_running.append(temp)
 
-    def _update_running_df_status(self, epoch, status):
+    def _update_running_df_status(self, epoch, result):
         bet_value = self.df_running[self.df_running.epoch == epoch]["amount"].iloc[0]
         bet_position = self.df_running[self.df_running.epoch == epoch]["position"].iloc[0]
-        if status == 0:
+        if result == 0:
+            # loss
             self.df_running.loc[self.df_running.epoch == epoch, "reward"] = -1 * bet_value
-        elif status == 1:
+        elif result == 1:
+            # win
             epoch_stats = self.get_round_stats(epoch)
             if bet_position == "bull":
                 pay_ratio = epoch_stats["bull_pay_ratio"]
             elif bet_position == "bear":
                 pay_ratio = epoch_stats["bear_pay_ratio"]
 
-            self.df_running.loc[self.df_running.epoch == epoch, "reward"] = bet_value * pay_ratio
+            self.df_running.loc[self.df_running.epoch == epoch, "reward"] = (bet_value * pay_ratio) - bet_value
 
     def _update_running_df_claim(self, epoch, claim_hash):
         self.df_running.loc[self.df_running.epoch == epoch, "claim_hash"] = claim_hash
@@ -301,18 +305,18 @@ class Prediction:
 
         if lock_price > close_price:
             # bearish
-            result = -1
+            condition = -1
         elif lock_price < close_price:
             # bullish
-            result = 1
+            condition = 1
         elif lock_price == close_price:
             # draw
-            result = 0
+            condition = 0
 
         bet_position = self.df_running[self.df_running["epoch"] == epoch]["position"].iloc[0]
-        if (bet_position == "bull") and (result == 1):
+        if (bet_position == "bull") and (condition == 1):
             return 1
-        elif (bet_position == "bear") and (result == -1):
+        elif (bet_position == "bear") and (condition == -1):
             return 1
         else:
             return 0

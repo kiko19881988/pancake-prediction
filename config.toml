@@ -14,7 +14,7 @@ gas_price = 5000000000
 
 [bet]
 # SECONDS LEFT BET AT
-seconds_left = 60
+seconds_left = 40
 
 [bnb]
 # IF TRUE, WHEN BNB BALANCE IS BELLOW BNB_LIMIT
