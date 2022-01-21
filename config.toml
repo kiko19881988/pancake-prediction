@@ -7,6 +7,9 @@ smart_contract = "0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA"
 [experimental]
 debug = true
 
+[ui]
+back_in_time = 100
+
 [tx]
 # TX SETTING
 gas = 400000

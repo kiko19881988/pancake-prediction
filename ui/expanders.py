@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit as st
 import datetime as dt
 from ui.history import get_history
+from utils.config import config
 from utils.round import important_round_columns, current_round_columns
 
 
@@ -15,6 +16,8 @@ def update_current(psp, plh_update):
         current_expander = st.expander(f"Current #{current_epoch}", expanded=True)
         with current_expander:
             round_stats = psp.get_round_stats(current_epoch)
+            bull_amount = df_current_round["bullAmount"].iloc[0]
+            bear_amount = df_current_round["bearAmount"].iloc[0]
             total_amount = round_stats["total_amount"]
             bull_ratio = round_stats["bull_ratio"]
             bear_ratio = round_stats["bear_ratio"]
@@ -26,31 +29,48 @@ def update_current(psp, plh_update):
             round_lock_time = round_stats["round_lock_time"]
             round_close_time = round_stats["round_close_time"]
 
-            st.write(df_current_round[current_round_columns])
+            # st.write(df_current_round[current_round_columns])
 
             if total_amount > 0:
-                col1, col2 = st.columns(2)
-                col1.write(f"Bullish **x{bull_pay_ratio:.2f}** - {bull_ratio:.2f}%")
-                col2.write(f"Bearish **x{bear_pay_ratio:.2f}** - {bear_ratio:.2f}%")
+                col1, col2, col3 = st.columns(3)
+
+                df_history_round = get_history(psp, current_epoch, back_in_time=config["ui"]["back_in_time"])
+                df_history_round["pool"] = df_history_round["bearAmount"] + df_history_round["bullAmount"]
+                average_pool = df_history_round.mean()["pool"]
+                col1.metric(label="BULLISH",
+                            value=f"{bull_pay_ratio:.2f}x",
+                            delta=f"{bull_amount:.5f} BNB | {bull_ratio:.2f}%",
+                            delta_color="normal")
+                col2.metric(label="BEARISH",
+                            value=f"{bear_pay_ratio:.2f}x",
+                            delta=f"{bear_amount:.5f} BNB | {bear_ratio:.2f}%",
+                            delta_color="inverse")
+                col3.metric(label="POOL SIZE",
+                            value=f"{total_amount:.2f} BNB",
+                            delta=f"Average {average_pool:.2f} BNB",
+                            delta_color="off")
+
+                # col1.write(f"Bullish **x{bull_pay_ratio:.2f}** - {bull_ratio:.2f}%")
+                # col2.write(f"Bearish **x{bear_pay_ratio:.2f}** - {bear_ratio:.2f}%")
             else:
                 st.warning("No deposit yet. Wait few seconds...")
 
             st.info(f"Now: {dt.datetime.now()}")
 
-            st.subheader("Contract Registered Time")
-            time_df_columns = ["Start", "Bet", "Lock", "Close"]
-            time_data = [[f"{round_start_time}",
-                          f"{round_bet_time}",
-                          f"{round_lock_time}",
-                          f"{round_close_time}"]]
-            time_df = pd.DataFrame(data=time_data, columns=time_df_columns)
-            st.dataframe(time_df)
-
-            st.subheader("Estimated Time")
-            time_data = [[f"{psp.start_time}",
-                          f"{psp.bet_time}",
-                          f"{psp.lock_time}",
-                          f"{psp.close_time}"]]
+            st.subheader("Time Source")
+            datetime_format = "%Y-%m-%d  %H:%M:%S"
+            time_df_columns = ["Source", "Start", "Bet", "Lock", "Close"]
+            time_data = [[f"Contract",
+                          f"{round_start_time.strftime(datetime_format)}",
+                          f"{round_bet_time.strftime(datetime_format)}",
+                          f"{round_lock_time.strftime(datetime_format)}",
+                          f"{round_close_time.strftime(datetime_format)}"],
+                         ["Estimated",
+                          f"{psp.start_time.strftime(datetime_format)}",
+                          f"{psp.bet_time.strftime(datetime_format)}",
+                          f"{psp.lock_time.strftime(datetime_format)}",
+                          f"{psp.close_time.strftime(datetime_format)}"]
+                         ]
             time_df = pd.DataFrame(data=time_data, columns=time_df_columns)
             st.dataframe(time_df)
             st.caption("Please wait for a new round to be started for accurate timing.")
@@ -118,5 +138,5 @@ def update_history(psp, current_epoch, plh_update):
     with plh_update:
         history_expander = st.expander("Contract History")
         with history_expander:
-            df_history_round = get_history(psp, current_epoch, back_in_time=100)
+            df_history_round = get_history(psp, current_epoch, back_in_time=config["ui"]["back_in_time"])
             st.write(df_history_round[important_round_columns])
