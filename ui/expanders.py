@@ -95,7 +95,7 @@ def update_running(psp, plh_update):
             summary_df_columns = ["Total Spent", "Max Spent", "Recent Loss", "Total Loss", "Estimated Win",
                                   "Estimated Gain"]
             summary_data = [[f"{total_spent:.5f} BNB / {df_running.shape[0]}",
-                             f"{max_spent} BNB",
+                             f"{max_spent:.5f} BNB",
                              f"{recent_loss:.5f} BNB / {recent_loss_times}",
                              f"{total_loss:.5f} BNB / {loss_times}",
                              f"{estimated_win:.5f} BNB / {win_times}",
