@@ -27,4 +27,4 @@ claim = true
 
 [retry]
 max_try = 3
-delay = 1
+delay = 1000

@@ -1,5 +1,5 @@
 import requests
-from retry import retry
+from retrying import retry
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 import datetime as dt
@@ -9,6 +9,10 @@ import numpy as np
 from utils.abi import get_abi
 from utils.config import config
 from utils.round import round_columns
+
+
+def retry_on_http_error(exc):
+    return isinstance(exc, requests.exceptions.HTTPError)
 
 
 class Prediction:
@@ -67,7 +71,9 @@ class Prediction:
         return self.df_running
 
     # Wallet Functions
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def get_balance(self):
         try:
             my_balance = self.w3.eth.getBalance(self.address)
@@ -76,7 +82,9 @@ class Prediction:
             my_balance = None
         return my_balance
 
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def get_min_bet(self):
         try:
             min_bet = self.prediction_contract.functions.minBetAmount().call()
@@ -86,7 +94,9 @@ class Prediction:
         return min_bet
 
     # Round/Epoch Functions
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def get_round(self, epoch):
         data = self.prediction_contract.functions.rounds(epoch).call()
         data = self._transform_round_data(data)
@@ -120,7 +130,9 @@ class Prediction:
                 "round_lock_time": round_lock_time,
                 "round_close_time": round_close_time}
 
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def get_current_epoch(self):
         current_epoch = self.prediction_contract.functions.currentEpoch().call()
         if self.current_epoch != current_epoch:
@@ -195,7 +207,9 @@ class Prediction:
 
         return claim_hash
 
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def claimable(self, epoch):
         if self.debug:
             result = self._check_epoch_result(epoch)
@@ -212,7 +226,9 @@ class Prediction:
             self._update_running_df_status(epoch, 0)
             return False
 
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def fetch_claimable(self):
         epochs = []
         current = self.prediction_contract.functions.currentEpoch().call()
@@ -237,7 +253,9 @@ class Prediction:
     # PRIVATE METHODS
     # ---------------
 
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def _init_w3(self):
         # BSC NODE
         self.w3 = Web3(Web3.HTTPProvider(self.web3_provider))
@@ -248,7 +266,9 @@ class Prediction:
         self.prediction_contract = self.w3.eth.contract(address=self.smart_contract,
                                                         abi=self.contract_abi)
 
-    @retry(requests.exceptions.HTTPError, tries=config["retry"]["max_try"], delay=config["retry"]["delay"])
+    @retry(retry_on_exception=retry_on_http_error,
+           stop_max_attempt_number=config["retry"]["max_try"],
+           wait_fixed=config["retry"]["delay"])
     def _get_abi(self):
         # url_eth = self.abi_api
         # contract_address = self.w3.toChecksumAddress(self.smart_contract)
