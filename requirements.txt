@@ -2,7 +2,6 @@ pandas
 numpy
 streamlit
 statsmodels
-jupyterlab
 toml
 requests
 retrying
