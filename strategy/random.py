@@ -40,6 +40,9 @@ def apply(psp: Prediction, df_running, current_epoch,
             # bear
             custom_factor = current_round_stats["bear_pay_ratio"] - safe_bet
 
+        if custom_factor < 1:
+            custom_factor += safe_bet
+
         if bet_status["estimated_gain"] >= 0:
             loss = bet_status["recent_loss"]
         else:
