@@ -8,7 +8,7 @@ dependencies:
   - numpy
   - requests
   - statsmodels
-  - jupyterlab
+  # - jupyterlab
   - web3
   - pip
   - pip:
