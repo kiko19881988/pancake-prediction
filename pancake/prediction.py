@@ -64,6 +64,11 @@ class Prediction:
     def set_df_running(self, df):
         self.df_running = df.copy()
 
+    # IsPaused?
+    def is_paused(self):
+        paused = self.prediction_contract.functions.paused().call()
+        return paused
+
     # Running History Dataframe
     def get_running_df(self):
         self.df_running = self.df_running.sort_values('epoch', ascending=False)
