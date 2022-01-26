@@ -49,7 +49,7 @@ def main():
     plh_status = st.empty()
 
     run_strategy = st.button("Run Strategy", disabled=psp.is_paused())
-    
+
     if run_strategy:
         i_bet = 0
         btn_stop = st.button("Stop")
