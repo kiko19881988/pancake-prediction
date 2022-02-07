@@ -2,7 +2,7 @@ import streamlit as st
 from ui.wallet import update_balance
 from utils.wallet import simulate_budget
 
-STRATEGIES = ["Random", "Same-Before", "Trend", "Bullish", "Bearish"]
+STRATEGIES = ["Trend", "EMA", "Random", "Same-Before", "Bullish", "Bearish"]
 EPOCHS = ["All", "Odd", "Even"]
 
 
@@ -30,7 +30,7 @@ def create_params_ui(psp):
     st.sidebar.caption(f'Min Bet: {min_bet:.5f} BNB')
 
     factor = st.sidebar.number_input("Multiplication Factor",
-                                     value=2.0, min_value=0.0,
+                                     value=0.0, min_value=0.0,
                                      step=0.1, max_value=10.0)
     st.sidebar.caption("Set to zero for auto factoring")
 
@@ -52,10 +52,12 @@ def create_params_ui(psp):
         max_loss_threshold = st.number_input("Max Loss Threshold",
                                              value=0.0, min_value=0.0, step=0.001,
                                              format="%.5f")
-        gain_threshold = st.number_input("Gain Threshold",
+        max_consecutive_loss = st.number_input("Max Consecutive Loss",
+                                               value=10, min_value=0, step=1)
+        gain_threshold = st.number_input("Max Gain Threshold",
                                          value=0.0, min_value=0.0, step=0.001,
                                          format="%.5f")
-        spend_threshold = st.number_input("Spend Threshold",
+        spend_threshold = st.number_input("Max Spend Threshold",
                                           value=0.0, min_value=0.0, step=0.001,
                                           format="%.5f")
         st.caption("Set to zero to ignore the stop criteria.")
@@ -69,6 +71,7 @@ def create_params_ui(psp):
             "factor": factor,
             "safe_bet": safe_bet,
             "max_loss_threshold": max_loss_threshold,
+            "max_consecutive_loss": max_consecutive_loss,
             "gain_threshold": gain_threshold,
             "spend_threshold": spend_threshold,
             "psp": psp}

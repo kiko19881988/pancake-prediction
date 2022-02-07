@@ -63,7 +63,8 @@ def main():
             if btn_stop or \
                     (0 > (sidebar_params["max_loss_threshold"] * -1) >= bet_status["estimated_gain"]) or \
                     (0 < sidebar_params["spend_threshold"] <= bet_status["total_spent"]) or \
-                    (0 < sidebar_params["gain_threshold"] <= bet_status["estimated_gain"]):
+                    (0 < sidebar_params["gain_threshold"] <= bet_status["estimated_gain"]) or \
+                    (0 < sidebar_params["max_consecutive_loss"] >= bet_status["recent_loss_times"]):
                 plh_status.warning("Stop criteria triggered.")
                 break
 
@@ -123,6 +124,11 @@ def main():
                                                                              base_bet, value, factor,
                                                                              sidebar_params["safe_bet"],
                                                                              bet_status)
+                        elif sidebar_params["strategy"] == "EMA":
+                            position, value, trx_hash = strategy.ema.apply(psp, df_running, current_epoch,
+                                                                           base_bet, value, factor,
+                                                                           sidebar_params["safe_bet"],
+                                                                           bet_status)
 
                         # --- END STRATEGY HERE ---
                         plh_status.success(f"Bet #{i_bet} - Value: {value} - Position: {position} - Trx: {trx_hash}")
