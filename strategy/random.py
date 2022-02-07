@@ -1,6 +1,5 @@
 import math
 import random
-
 from pancake import Prediction
 
 

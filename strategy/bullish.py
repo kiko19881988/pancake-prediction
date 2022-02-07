@@ -1,5 +1,4 @@
 import math
-
 from pancake import Prediction
 
 
