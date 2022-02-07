@@ -7,7 +7,7 @@ from ui.history import get_history
 def apply(psp: Prediction, df_running, current_epoch,
           base_bet, value, factor, safe_bet, bet_status):
     """
-    This strategy takes the last hour, and calculates the trend line to decide if
+    This strategy takes the last few blocks, and calculates the trend line to decide if
     it should bet bear or bull.
     Martingle technique is also being applied.
     """

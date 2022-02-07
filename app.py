@@ -48,7 +48,9 @@ def main():
     plh_timer = st.empty()
     plh_status = st.empty()
 
-    if st.button("Run Strategy"):
+    run_strategy = st.button("Run Strategy", disabled=psp.is_paused())
+
+    if run_strategy:
         i_bet = 0
         btn_stop = st.button("Stop")
         value = base_bet = sidebar_params["base_bet"]

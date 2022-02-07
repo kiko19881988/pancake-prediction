@@ -9,12 +9,16 @@ from utils.round import important_round_columns, current_round_columns
 
 def update_current(psp, plh_update):
     with plh_update:
+        is_paused = psp.is_paused()
+
         # current round
         current_epoch = psp.get_current_epoch()
 
         df_current_round = psp.get_round(current_epoch)
         current_expander = st.expander(f"Current #{current_epoch}", expanded=True)
         with current_expander:
+            if is_paused:
+                st.error("Pancake Prediction is currently paused.")
             round_stats = psp.get_round_stats(current_epoch)
             bull_amount = df_current_round["bullAmount"].iloc[0]
             bear_amount = df_current_round["bearAmount"].iloc[0]
