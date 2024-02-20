@@ -3,12 +3,12 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.11
   - pandas
   - numpy
   - requests
   - statsmodels
-  # - jupyterlab
+  - jupyterlab
   - web3
   - pip
   - pip:

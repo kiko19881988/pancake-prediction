@@ -7,14 +7,14 @@ import streamlit as st
 from utils.config import config
 
 
-@st.experimental_memo()
+@st.cache_data()
 def get_abi():
     url_eth = config["general"]["abi_api"]
     # BSC NODE
     w3 = Web3(Web3.HTTPProvider(config["general"]["web3_provider"]))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-    contract_address = w3.toChecksumAddress(config["general"]["smart_contract"])
+    contract_address = w3.to_checksum_address(config["general"]["smart_contract"])
     API_ENDPOINT = url_eth + "?module=contract&action=getabi&address=" + str(contract_address)
     r = requests.get(url=API_ENDPOINT)
     response = r.json()

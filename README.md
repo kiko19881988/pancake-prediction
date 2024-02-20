@@ -18,17 +18,17 @@ Now you can run the dashboard using `streamlit`.
 
 ### Live demo
 You can check its live demo here:
-[https://share.streamlit.io/kavehbc/pancake-prediction/main.py](https://share.streamlit.io/kavehbc/pancake-prediction/main.py)
+[https://pancake-prediction.streamlit.app/](https://pancake-prediction.streamlit.app/)
 
 > You may require authorization to access the live dashboard.
 
 ___
-## Github Repo
-This project is open-source, and it is available on Github at [https://github.com/kavehbc/pancake-prediction](https://github.com/kavehbc/pancake-prediction).
+## GitHub Repo
+This project is open-source, and it is available on GitHub at [https://github.com/kavehbc/pancake-prediction](https://github.com/kavehbc/pancake-prediction).
 
 ## Developer(s)
 Kaveh Bakhtiyari - [Website](http://bakhtiyari.com) | [Medium](https://medium.com/@bakhtiyari)
-  | [LinkedIn](https://www.linkedin.com/in/bakhtiyari) | [Github](https://github.com/kavehbc)
+  | [LinkedIn](https://www.linkedin.com/in/bakhtiyari) | [GitHub](https://github.com/kavehbc)
 
 Ehsan Golkar - [Website](http://ehsangolkar.com)
 

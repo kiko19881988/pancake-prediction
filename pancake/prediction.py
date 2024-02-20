@@ -81,8 +81,8 @@ class Prediction:
            wait_fixed=config["retry"]["delay"])
     def get_balance(self):
         try:
-            my_balance = self.w3.eth.getBalance(self.address)
-            my_balance = self.w3.fromWei(my_balance, 'ether')
+            my_balance = self.w3.eth.get_balance(self.address)
+            my_balance = self.w3.from_wei(my_balance, 'ether')
         except:
             my_balance = None
         return my_balance
@@ -93,7 +93,7 @@ class Prediction:
     def get_min_bet(self):
         try:
             min_bet = self.prediction_contract.functions.minBetAmount().call()
-            min_bet = self.w3.fromWei(min_bet, 'ether')
+            min_bet = self.w3.from_wei(min_bet, 'ether')
         except:
             min_bet = 0
         return min_bet
@@ -154,7 +154,7 @@ class Prediction:
         if self.debug:
             trx_hash = "trx_hash_sample_string"
         else:
-            value = self.w3.toWei(value, 'ether')
+            value = self.w3.to_wei(value, 'ether')
             bull_bet = self.prediction_contract.functions.betBull(epoch).buildTransaction({
                 'from': self.address,
                 'nonce': self.w3.eth.getTransactionCount(self.address),
@@ -162,10 +162,10 @@ class Prediction:
                 'gas': self.gas,
                 'gasPrice': self.gas_price,
             })
-            signed_trx = self.w3.eth.account.signTransaction(bull_bet, private_key=self.private_key)
-            self.w3.eth.sendRawTransaction(signed_trx.rawTransaction)
-            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_trx.hash)}'
-            value = self.w3.fromWei(value, 'ether')
+            signed_trx = self.w3.eth.account.sign_transaction(bull_bet, private_key=self.private_key)
+            self.w3.eth.send_raw_transaction(signed_trx.rawTransaction)
+            trx_hash = f'{self.w3.eth.wait_for_transaction_receipt(signed_trx.hash)}'
+            value = self.w3.from_wei(value, 'ether')
 
         self._update_running_df_bet(epoch, "bull", value, trx_hash)
         return trx_hash
@@ -178,15 +178,15 @@ class Prediction:
             value = self.w3.toWei(value, 'ether')
             bear_bet = self.prediction_contract.functions.betBear(epoch).buildTransaction({
                 'from': self.address,
-                'nonce': self.w3.eth.getTransactionCount(self.address),
+                'nonce': self.w3.eth.get_transaction_count(self.address),
                 'value': value,
                 'gas': self.gas,
                 'gasPrice': self.gas_price,
             })
-            signed_trx = self.w3.eth.account.signTransaction(bear_bet, private_key=self.private_key)
-            self.w3.eth.sendRawTransaction(signed_trx.rawTransaction)
-            trx_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_trx.hash)}'
-            value = self.w3.fromWei(value, 'ether')
+            signed_trx = self.w3.eth.account.sign_transaction(bear_bet, private_key=self.private_key)
+            self.w3.eth.send_raw_transaction(signed_trx.raw_transaction)
+            trx_hash = f'{self.w3.eth.wait_for_transaction_receipt(signed_trx.hash)}'
+            value = self.w3.from_wei(value, 'ether')
 
         self._update_running_df_bet(epoch, "bear", value, trx_hash)
         return trx_hash
@@ -198,14 +198,14 @@ class Prediction:
         else:
             claim = self.prediction_contract.functions.claim(epochs).buildTransaction({
                 'from': self.address,
-                'nonce': self.w3.eth.getTransactionCount(self.address),
+                'nonce': self.w3.eth.get_transaction_count(self.address),
                 'value': 0,
                 'gas': 800000,
                 'gasPrice': 5000000000,
             })
-            signed_trx = self.w3.eth.account.signTransaction(claim, private_key=self.private_key)
-            self.w3.eth.sendRawTransaction(signed_trx.rawTransaction)
-            claim_hash = f'{self.w3.eth.waitForTransactionReceipt(signed_trx.hash)}'
+            signed_trx = self.w3.eth.account.sign_transaction(claim, private_key=self.private_key)
+            self.w3.eth.send_raw_transaction(signed_trx.raw_transaction)
+            claim_hash = f'{self.w3.eth.wait_for_transaction_receipt(signed_trx.hash)}'
 
         for epoch in epochs:
             self._update_running_df_claim(epoch, claim_hash)
@@ -298,15 +298,15 @@ class Prediction:
         # uint256 closeOracleId;
         data[7] = 0
         # uint256 totalAmount;
-        data[8] = self.w3.fromWei(data[8], 'ether')
+        data[8] = self.w3.from_wei(data[8], 'ether')
         # uint256 bullAmount;
-        data[9] = self.w3.fromWei(data[9], 'ether')
+        data[9] = self.w3.from_wei(data[9], 'ether')
         # uint256 bearAmount;
-        data[10] = self.w3.fromWei(data[10], 'ether')
+        data[10] = self.w3.from_wei(data[10], 'ether')
         # uint256 rewardBaseCalAmount;
-        data[11] = self.w3.fromWei(data[11], 'ether')
+        data[11] = self.w3.from_wei(data[11], 'ether')
         # uint256 rewardAmount;
-        data[12] = self.w3.fromWei(data[12], 'ether')
+        data[12] = self.w3.from_wei(data[12], 'ether')
         # bool oracleCalled;
 
         df_current_round = pd.DataFrame(np.array([data]),
