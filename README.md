@@ -4,9 +4,9 @@ An open-source toolbox for daily cryptography needs which is developed in Python
 ___
 ## Run
 In order to run this app, you need to install the dependencies first based on
-the `environment.yml` or `requirements.txt` files.
+the `_environment.yml` or `requirements.txt` files.
 
-    conda env create -f environment.yml
+    conda env create -f _environment.yml
 
 Once the environment has been created, activate it:
 
